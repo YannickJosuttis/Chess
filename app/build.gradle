@@ -39,8 +39,8 @@ javafx {
 
 //applicationDefaultJvmArgs = ["-Xss1g"]
 
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = 18
+targetCompatibility = 18
 
 test{
 	useJUnitPlatform()
