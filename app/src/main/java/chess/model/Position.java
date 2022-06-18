@@ -1,66 +1,54 @@
 package chess.model;
 
-import chess.model.piece.Piece;
-import chess.model.piece.PieceUtils;
 import chess.model.piece.properties.Color;
+import chess.model.piece.utils.PieceUtils;
 
-/**
- * Class for representing a position on the chess board. A position is defined
- * by any information stored in the FEN (Forsyth-Edwards-Notation) notation. The
- * FEN notation consists of 6 fields:
- * <ul>
- * <li>Piece placement
- * <li>Active color
- * <li>Castling availability
- * <li>En passant target square
- * <li>Halfmove clock
- * <li>Fullmove number
- * <ul>
- */
 public class Position {
 
-    public static final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public static final String STARTING_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-    private final Board board; // piece placement
-    private int activeColor;
+    private final Board board;
+    private Color activeColor;
     private boolean[] castlingAvailability;
-    private int enpassantFile, enpassantRank; // en passant target square
-    private int halfmoveClock;
-    private int fullmoveNumber;
+    private Square enPassantTarget;
+    private int halfMoveClock;
+    private int moveNumber;
 
-    public Position() {
-        this.board = new Board();
+    public Position(Board board) {
+        this.board = board;
     }
 
-    /**
-     * Method that sets the position to the given FEN string.
-     */
-    public void fromFen(String fen) {
+    public void clear() {
+        board.clear();
+        this.activeColor = Color.WHITE;
+        this.castlingAvailability = new boolean[4];
+        this.enPassantTarget = null;
+        this.halfMoveClock = 0;
+        this.moveNumber = 1;
+    }
 
-        validateFenSyntax(fen);
-        
-
-        String[] fields = fen.split(" ");
-        setPiecePlacement(fields[0]);
-        setActiveColor(fields[1]);
-        setCastlingAvailability(fields[2]);
-        setEnpassantTargetSquare(fields[3]);
-        setHalfmoveClock(fields[4]);
-        setFullmoveNumber(fields[5]);
-
+    public void fromFEN(String fen) {
+        clear();
+        String[] parts = fen.split(" ");
+        setPiecePlacement(parts[0]);
+        setActiveColor(parts[1]);
+        setCastlingAvailability(parts[2]);
+        setEnPassantTarget(parts[3]);
+        setHalfMoveClock(parts[4]);
+        setMoveNumber(parts[5]);
     }
 
     private void setPiecePlacement(String string) {
         int file = 0;
         int rank = 0;
-        for (char ch : string.toCharArray()) {
-            if (ch == '/') {
+        for (char c : string.toCharArray()) {
+            if (c == '/') {
                 file = 0;
                 rank++;
-            } else if (Character.isDigit(ch)) {
-                file += ch - '0';
+            } else if (Character.isDigit(c)) {
+                file += c - '0';
             } else {
-                board.setPieceAt(PieceUtils.fromChar(ch), file, rank);
+                board.getSquare(file, rank).setPiece(PieceUtils.fromChar(c));
                 file++;
             }
         }
@@ -77,109 +65,152 @@ public class Position {
     }
 
     private void setCastlingAvailability(String string) {
-        castlingAvailability = new boolean[4];
-        for (char ch : string.toCharArray()) {
-            switch (ch) {
-                case 'K' -> castlingAvailability[0] = true;
-                case 'Q' -> castlingAvailability[1] = true;
-                case 'k' -> castlingAvailability[2] = true;
-                case 'q' -> castlingAvailability[3] = true;
-                case '-' -> {
-                }
-                default -> throw new IllegalArgumentException("Invalid castling availability: " + ch);
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (c == 'K') {
+                castlingAvailability[0] = true;
+            } else if (c == 'Q') {
+                castlingAvailability[1] = true;
+            } else if (c == 'k') {
+                castlingAvailability[2] = true;
+            } else if (c == 'q') {
+                castlingAvailability[3] = true;
             }
         }
     }
 
-    private void setEnpassantTargetSquare(String string) {
+    private void setEnPassantTarget(String string) {
         if (string.equals("-")) {
-            enpassantFile = -1;
-            enpassantRank = -1;
+            enPassantTarget = null;
         } else {
-            enpassantFile = string.charAt(0) - 'a';
-            enpassantRank = string.charAt(1) - '1';
+            enPassantTarget = board.getSquare(string.charAt(0) - 'a', string.charAt(1) - '0' - 1);
         }
     }
 
-    private void setHalfmoveClock(String string) {
-        halfmoveClock = Integer.parseInt(string);
+    private void setHalfMoveClock(String string) {
+        halfMoveClock = Integer.parseInt(string);
     }
 
-    private void setFullmoveNumber(String string) {
-        fullmoveNumber = Integer.parseInt(string);
+    private void setMoveNumber(String string) {
+        moveNumber = Integer.parseInt(string);
     }
 
-    /**
-     * Method that returns the FEN string of the current position.
-     */
-    public String toFen() {
+    public String toFEN() {
         StringBuilder sb = new StringBuilder();
-        int numberOfEmptySquares = 0;
-        for (int rank = 0; rank < Board.NUMBER_OF_RANKS; rank++) {
-            for (int file = 0; file < Board.NUMBER_OF_FILES; file++) {
-                int piece = board.getPieceAt(file, rank);
-                if (piece == Piece.EMPTY) {
-                    numberOfEmptySquares++;
+        for (int rank = 0; rank < 8; rank++) {
+            int empty = 0;
+            for (int file = 0; file < 8; file++) {
+                Square square = board.getSquare(file, rank);
+                if (square.getPiece() == null) {
+                    empty++;
                 } else {
-                    if (numberOfEmptySquares > 0) {
-                        sb.append(numberOfEmptySquares);
-                        numberOfEmptySquares = 0;
+                    if (empty > 0) {
+                        sb.append(empty);
+                        empty = 0;
                     }
-                    sb.append(PieceUtils.toChar(piece));
+                    sb.append(PieceUtils.toChar(board.getSquare(file, rank).getPiece()));
                 }
             }
-            if (numberOfEmptySquares > 0) {
-                sb.append(numberOfEmptySquares);
-                numberOfEmptySquares = 0;
+            if (empty > 0) {
+                sb.append(empty);
             }
-            if (rank < Board.NUMBER_OF_RANKS - 1) {
+            if (rank < 7) {
                 sb.append("/");
             }
         }
         sb.append(" ");
         sb.append(activeColor == Color.WHITE ? "w" : "b");
         sb.append(" ");
-        if (!(castlingAvailability[0] || castlingAvailability[1] || castlingAvailability[2]
-                || castlingAvailability[3])) {
+        sb.append(castlingAvailability[0] ? "K" : "");
+        sb.append(castlingAvailability[1] ? "Q" : "");
+        sb.append(castlingAvailability[2] ? "k" : "");
+        sb.append(castlingAvailability[3] ? "q" : "");
+        if (!castlingAvailability[0] && !castlingAvailability[1] && !castlingAvailability[2]
+                && !castlingAvailability[3]) {
             sb.append("-");
-        } else {
-            sb.append(castlingAvailability[0] ? "K" : "");
-            sb.append(castlingAvailability[1] ? "Q" : "");
-            sb.append(castlingAvailability[2] ? "k" : "");
-            sb.append(castlingAvailability[3] ? "q" : "");
         }
         sb.append(" ");
-        if (enpassantFile == -1) {
+        if (enPassantTarget == null) {
             sb.append("-");
         } else {
-            sb.append((char) ('a' + enpassantFile));
-            sb.append((char) ('1' + enpassantRank));
+            sb.append(enPassantTarget.getFile() + 1 + "" + enPassantTarget.getRank());
         }
         sb.append(" ");
-        sb.append(halfmoveClock);
+        sb.append(halfMoveClock);
         sb.append(" ");
-        sb.append(fullmoveNumber);
+        sb.append(moveNumber);
         return sb.toString();
     }
 
-    /**
-     * Checks if valid fen by using regualar expression.
-     */
-    public void validateFenSyntax(String fen) {
-        if (!fen.matches(
-                "\s*([rnbqkpRNBQKP1-8]+/){7}([rnbqkpRNBQKP1-8]+)\s[bw-]\s(([a-hkqA-HKQ]{1,4})|(-))\s(([a-h][36])|(-))\s[0-9]+\s[0-9]+\s*")) {
-            throw new IllegalArgumentException("Invalid FEN syntax: " + fen);
-        }
+    public Board getBoard() {
+        return board;
+    }
+
+    public Color getActiveColor() {
+        return activeColor;
+    }
+
+    public boolean isWhiteKingsideCastleAvailable() {
+        return castlingAvailability[0];
+    }
+
+    public boolean isWhiteQueensideCastleAvailable() {
+        return castlingAvailability[1];
+    }
+
+    public boolean isBlackKingsideCastleAvailable() {
+        return castlingAvailability[2];
+    }
+
+    public boolean isBlackQueensideCastleAvailable() {
+        return castlingAvailability[3];
+    }
+
+    public Square getEnPassantTarget() {
+        return enPassantTarget;
+    }
+
+    public int getHalfMoveClock() {
+        return halfMoveClock;
+    }
+
+    public int getMoveNumber() {
+        return moveNumber;
+    }
+
+    public void setActiveColor(Color activeColor) {
+        this.activeColor = activeColor;
+    }
+
+    public void setWhiteKingsideCastleAvailability(boolean isWhiteKingsideCastleAvailable) {
+        castlingAvailability[0] = isWhiteKingsideCastleAvailable;
+    }
+
+    public void setWhiteQueensideCastleAvailability(boolean isWhiteQueensideCastleAvailable) {
+        castlingAvailability[1] = isWhiteQueensideCastleAvailable;
+    }
+
+    public void setBlackKingsideCastleAvailability(boolean isBlackKingsideCastleAvailable) {
+        castlingAvailability[2] = isBlackKingsideCastleAvailable;
+    }
+
+    public void setBlackQueensideCastleAvailability(boolean isBlackQueensideCastleAvailable) {
+        castlingAvailability[3] = isBlackQueensideCastleAvailable;
+    }
+
+    public void setEnPassantTarget(Square square) {
+        this.enPassantTarget = square;
+    }
+
+    public void setHalfMoveClock(int halfMoveClock) {
+        this.halfMoveClock = halfMoveClock;
+    }
+
+    public void setMoveNumber(int moveNumber) {
+        this.moveNumber = moveNumber;
+    }
+
+    public String toString() {
+        return toFEN();
     }
 }
-
-// /**
-// * Checks if given fen is valid by using regular expression.
-// *
-// * @param fen
-// * @return
-// */
-// private boolean isValidFen(String fen) {
-// return fen
-// .matches("^([KQRBNP]{1,8}/){7}[KQRBNP]{1,8}\\s[wb]\\s[KQRBNP]{1,8}\\s[wb]\\s[0-9]{1,4}\\s[0-9]{1,4}$");
-// }

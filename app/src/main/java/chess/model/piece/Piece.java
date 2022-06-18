@@ -1,28 +1,25 @@
 package chess.model.piece;
 
-public class Piece {
+import chess.model.piece.properties.Color;
+import chess.model.piece.properties.Type;
 
-    public static final int EMPTY = 0b0000;
-    public static final int PAWN = 0b0001;
-    public static final int ROOK = 0b0010;
-    public static final int BISHOP = 0b0011;
-    public static final int KNIGHT = 0b0100;
-    public static final int QUEEN = 0b0101;
-    public static final int KING = 0b0110;
+public abstract class Piece implements IPiece {
 
-    private static final int COLOR_MASK = 0b11000;
-    private static final int TYPE_MASK = 0b00111;
+    private Color color;
+    private Type type;
 
-    public static int getColor(int piece) {
-        return piece & COLOR_MASK;
+    public Piece(Color color, Type type) {
+        this.color = color;
+        this.type = type;
     }
 
-    public static int getType(int piece) {
-        return piece & TYPE_MASK;
+    public Color getColor() {
+        return color;
     }
 
-    public static int create(int color, int type) {
-        return color | type;
+    @Override
+    public Type getType() {
+        return type;
     }
-
+    
 }
