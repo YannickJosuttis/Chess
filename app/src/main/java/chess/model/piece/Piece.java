@@ -21,5 +21,16 @@ public abstract class Piece implements IPiece {
     public Type getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this){
+            return true;
+        }
+        if (obj instanceof Piece other) {
+            return this.color == other.color && this.type == other.type;
+        }
+        return false;
+    }
     
 }

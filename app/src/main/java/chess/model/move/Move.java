@@ -7,8 +7,8 @@ import chess.model.Square;
  */
 public class Move {
 
-    private Square source;
-    private Square destination;
+    protected Square source;
+    protected Square destination;
     
     public Move(Square source, Square destination) {
 

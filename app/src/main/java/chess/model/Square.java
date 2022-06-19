@@ -39,5 +39,16 @@ public class Square {
     public int getRank() {
         return rank;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this){
+            return true;
+        }
+
+        if (obj instanceof Square other) {
+            return this.file == other.file && this.rank == other.rank && (this.piece == null && other.piece == null || this.piece.equals(other.piece));
+        }
+        return false;
+    }
 }

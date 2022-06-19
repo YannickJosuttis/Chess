@@ -1,5 +1,7 @@
 package chess.model;
 
+import java.util.Arrays;
+
 import chess.model.piece.properties.Color;
 import chess.model.piece.utils.PieceUtils;
 
@@ -16,6 +18,7 @@ public class Position {
 
     public Position(Board board) {
         this.board = board;
+        castlingAvailability = new boolean[4];
     }
 
     public void clear() {
@@ -212,5 +215,42 @@ public class Position {
 
     public String toString() {
         return toFEN();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if(obj == this){
+            return true;
+        }
+
+        if(obj instanceof Position other){
+
+            if(!this.board.equals(other.board)){
+                return false;
+            }
+
+            if(this.activeColor != other.activeColor){
+                return false;
+            }
+
+            if(!Arrays.equals(this.castlingAvailability, other.castlingAvailability)){
+                return false;
+            }
+
+            if(this.enPassantTarget != other.enPassantTarget){
+                return false;
+            }
+
+            if(this.halfMoveClock != other.halfMoveClock){
+                return false;
+            }
+
+            if(this.moveNumber != other.moveNumber){
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
