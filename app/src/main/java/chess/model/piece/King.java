@@ -2,6 +2,7 @@ package chess.model.piece;
 
 import java.util.List;
 
+import chess.model.Position;
 import chess.model.move.Move;
 import chess.model.piece.properties.Color;
 import chess.model.piece.properties.Type;
@@ -13,7 +14,7 @@ public class King extends Piece {
     }
 
     @Override
-    public List<Move> getMoves() {
+    public List<Move> getPseudoLegalMoves(Position position) {
         return null;
     }
     

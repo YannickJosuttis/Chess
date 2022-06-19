@@ -38,19 +38,16 @@ public class Board {
     }
 
     public Square getSquare(int file, int rank) {
-        if (isInBorder(file, rank)) {
-            return squares[file][rank];
-        }
-        throw new IllegalArgumentException("Invalid file or rank");
+        return squares[file][rank];
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this){
+        if (obj == this) {
             return true;
         }
 
-        if(obj instanceof Board other) {
+        if (obj instanceof Board other) {
             for (int rank = 0; rank < NUMBER_OF_RANKS; rank++) {
                 for (int file = 0; file < NUMBER_OF_FILES; file++) {
                     if (!this.squares[file][rank].equals(other.squares[file][rank])) {
@@ -60,19 +57,19 @@ public class Board {
             }
             return true;
         }
-            return false; 
+        return false;
     }
 
     @Override
     public String toString() {
-    StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < NUMBER_OF_RANKS; i++) {
             for (int j = 0; j < NUMBER_OF_FILES; j++) {
                 sb.append(squares[j][i].getPiece() == null ? "-" : PieceUtils.toChar(squares[j][i].getPiece()));
                 sb.append(" ");
-        }
+            }
             sb.append("\n");
-       }
-            return sb.toString();
+        }
+        return sb.toString();
     }
 }
