@@ -59,4 +59,4 @@ test{
 
 
 // Define the main class for the application
-mainClassName = 'chess/Main'
+mainClassName = 'chess.HelloFX'
