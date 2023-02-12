@@ -32,15 +32,15 @@ repositories {
 }
 
 javafx {
-    version = "18"
+    version = "19"
    	modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 
 //applicationDefaultJvmArgs = ["-Xss1g"]
 
-sourceCompatibility = 18
-targetCompatibility = 18
+sourceCompatibility = 19
+targetCompatibility = 19
 
 test{
 	useJUnitPlatform()
