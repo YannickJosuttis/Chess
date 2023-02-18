@@ -3,31 +3,27 @@ package chess.model.move;
 import chess.model.board.Square;
 import chess.model.piece.Piece;
 
-public class Capture extends Move {
+public class Capture extends DefaultMove {
+    
+    private Square captureSquare;
+    private Piece capturedPiece;
 
-    protected Piece capturedPiece;
-
-    public Capture(Square source, Square destination, Piece capturedPiece) {
+    public Capture(Square source, Square destination, Square captureSquare) {
         super(source, destination);
-        this.capturedPiece = capturedPiece;
+        this.captureSquare = captureSquare;
+        this.capturedPiece = captureSquare.getPiece();
     }
 
     @Override
     public void execute() {
-        if (source.isEmpty()) {
-            throw new IllegalStateException("Source must not be empty!");
-        }
-        if (destination.isEmpty()) {
-            throw new IllegalStateException("Destination must not be empty!");
-        }
-        destination.setPiece(source.getPiece());
-        source.removePiece();
+        super.execute();
+        captureSquare.removePiece();
     }
 
     @Override
     public void undo() {
-        source.setPiece(destination.getPiece());
-        destination.setPiece(capturedPiece);
+        super.undo();
+        captureSquare.setPiece(capturedPiece);
     }
-    
+
 }

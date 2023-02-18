@@ -2,18 +2,14 @@ package chess.model.move;
 
 import chess.model.board.Square;
 
-public abstract class Move {
+public interface Move {
 
-    protected Square source, destination;
+    public void execute();
 
-    public Move(Square source, Square destination) {
-        this.source = source;
-        this.destination = destination;
-    }
+    public void undo();
 
-    public abstract void execute();
+    public Square getSource();
+
+    public Square getDestination();
     
-    public abstract void undo();
-
 }
-

@@ -29,7 +29,7 @@ public class Position {
     }
 
     public void move(Move move) {
-        move.execute();
+        // move.execute();
         /* move
          * capture
          * enpassant
